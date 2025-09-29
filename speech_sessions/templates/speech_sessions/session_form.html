@@ -1,0 +1,256 @@
+{% extends 'coach/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Verbal Coach{% endblock %}
+
+{% block content %}
+<div class="px-4 sm:px-6 lg:px-8">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center">
+            <a href="{% url 'speech_sessions:session_list' %}" 
+               class="mr-4 text-gray-400 hover:text-gray-600">
+                <i class="fas fa-arrow-left text-xl"></i>
+            </a>
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">{{ title }}</h1>
+                <p class="mt-2 text-sm text-gray-700">
+                    {% if session %}
+                        Update the details of your speech session.
+                    {% else %}
+                        Create a new speech session to track your progress.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Container -->
+    <div class="max-w-2xl">
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <form method="post" enctype="multipart/form-data" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <!-- Duration Field -->
+                    <div>
+                        <label for="{{ form.duration.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            Duration (seconds) <span class="text-red-500">*</span>
+                        </label>
+                        <div class="mt-1">
+                            {{ form.duration }}
+                        </div>
+                        {% if form.duration.errors %}
+                            <div class="mt-2 text-sm text-red-600">
+                                {% for error in form.duration.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        {% if form.duration.help_text %}
+                            <p class="mt-2 text-sm text-gray-500">{{ form.duration.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Audio File Field (only for create) -->
+                    {% if not session %}
+                    <div>
+                        <label for="{{ form.audio_file.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            Audio File
+                        </label>
+                        <div class="mt-1">
+                            {{ form.audio_file }}
+                        </div>
+                        {% if form.audio_file.errors %}
+                            <div class="mt-2 text-sm text-red-600">
+                                {% for error in form.audio_file.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        {% if form.audio_file.help_text %}
+                            <p class="mt-2 text-sm text-gray-500">{{ form.audio_file.help_text }}</p>
+                        {% endif %}
+                        <div class="mt-2 text-sm text-gray-500">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Upload an audio file to enable automatic analysis of filler words and pacing.
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Transcription Field -->
+                    <div>
+                        <label for="{{ form.transcription.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            Transcription
+                        </label>
+                        <div class="mt-1">
+                            {{ form.transcription }}
+                        </div>
+                        {% if form.transcription.errors %}
+                            <div class="mt-2 text-sm text-red-600">
+                                {% for error in form.transcription.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        {% if form.transcription.help_text %}
+                            <p class="mt-2 text-sm text-gray-500">{{ form.transcription.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Update-specific fields -->
+                    {% if session %}
+                    <div class="border-t border-gray-200 pt-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Analysis Details</h3>
+                        
+                        <!-- Filler Count -->
+                        <div class="mb-4">
+                            <label for="{{ form.filler_count.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                Filler Word Count
+                            </label>
+                            <div class="mt-1">
+                                {{ form.filler_count }}
+                            </div>
+                            {% if form.filler_count.errors %}
+                                <div class="mt-2 text-sm text-red-600">
+                                    {% for error in form.filler_count.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Pacing Analysis -->
+                        <div class="mb-4">
+                            <label for="{{ form.pacing_analysis.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                Pacing Analysis
+                            </label>
+                            <div class="mt-1">
+                                {{ form.pacing_analysis }}
+                            </div>
+                            {% if form.pacing_analysis.errors %}
+                                <div class="mt-2 text-sm text-red-600">
+                                    {% for error in form.pacing_analysis.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Status -->
+                        <div class="mb-4">
+                            <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                Status
+                            </label>
+                            <div class="mt-1">
+                                {{ form.status }}
+                            </div>
+                            {% if form.status.errors %}
+                                <div class="mt-2 text-sm text-red-600">
+                                    {% for error in form.status.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Confidence Score -->
+                        <div class="mb-4">
+                            <label for="{{ form.confidence_score.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                Confidence Score (0.0 - 1.0)
+                            </label>
+                            <div class="mt-1">
+                                {{ form.confidence_score }}
+                            </div>
+                            {% if form.confidence_score.errors %}
+                                <div class="mt-2 text-sm text-red-600">
+                                    {% for error in form.confidence_score.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Form Actions -->
+                    <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                        <a href="{% url 'speech_sessions:session_list' %}" 
+                           class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Cancel
+                        </a>
+                        <button type="submit" 
+                                class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <i class="fas fa-save mr-2"></i>{{ submit_text }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Help Text -->
+        {% if not session %}
+        <div class="mt-6 bg-blue-50 border border-blue-200 rounded-md p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-info-circle text-blue-400"></i>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-blue-800">
+                        Getting Started
+                    </h3>
+                    <div class="mt-2 text-sm text-blue-700">
+                        <ul class="list-disc list-inside space-y-1">
+                            <li>Upload an audio file to automatically analyze filler words and pacing</li>
+                            <li>Enter the duration of your speech in seconds</li>
+                            <li>Optionally provide a transcription for better analysis</li>
+                            <li>The system will automatically analyze your speech patterns</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-calculate duration from audio file (if supported by browser)
+    const audioFileInput = document.querySelector('input[type="file"][accept*="audio"]');
+    const durationInput = document.querySelector('input[name="duration"]');
+    
+    if (audioFileInput && durationInput) {
+        audioFileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('audio/')) {
+                const audio = new Audio();
+                audio.src = URL.createObjectURL(file);
+                
+                audio.addEventListener('loadedmetadata', function() {
+                    if (!durationInput.value && audio.duration) {
+                        durationInput.value = Math.round(audio.duration);
+                    }
+                    URL.revokeObjectURL(audio.src);
+                });
+            }
+        });
+    }
+    
+    // Form validation
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const duration = durationInput?.value;
+            if (!duration || parseInt(duration) <= 0) {
+                e.preventDefault();
+                alert('Please enter a valid duration greater than 0 seconds.');
+                durationInput?.focus();
+                return false;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
+
